@@ -1,0 +1,84 @@
+{
+  "app": {
+    "name": "Geotag Kamera",
+    "tagline": "Foto otomatis dengan watermark lokasi"
+  },
+  "tabs": {
+    "map": "Peta",
+    "camera": "Kamera"
+  },
+  "permission": {
+    "title": "Izin diperlukan",
+    "description": "Aplikasi ini membutuhkan akses Lokasi (GPS) dan Kamera untuk berfungsi.",
+    "requestLocation": "Minta izin lokasi",
+    "requestCamera": "Minta izin kamera",
+    "requestAll": "Minta izin lokasi dan kamera",
+    "locationDenied": "Akses lokasi ditolak. Aktifkan izin lokasi di pengaturan browser.",
+    "cameraDenied": "Akses kamera ditolak. Aktifkan izin kamera di pengaturan browser.",
+    "httpsRequired": "Fitur ini membutuhkan koneksi HTTPS. Buka aplikasi lewat https:// atau localhost.",
+    "locationGranted": "Izin lokasi aktif",
+    "cameraGranted": "Izin kamera aktif"
+  },
+  "geo": {
+    "loading": "Mencari lokasi Anda",
+    "accuracyMeters": "Akurasi {{meters}} meter",
+    "accuracyExcellent": "GPS terkunci",
+    "accuracyGood": "Akurasi cukup",
+    "accuracyPoor": "GPS sedang mencari sinyal",
+    "warming": "Menstabilkan GPS ({{samples}} sampel diterima)",
+    "lastUpdated": "Diperbarui {{time}}",
+    "refresh": "Perbarui lokasi",
+    "unavailable": "Lokasi tidak tersedia",
+    "timeout": "Permintaan lokasi habis waktu",
+    "waitForBetterAccuracy": "Tunggu akurasi membaik sebelum memotret untuk hasil terbaik"
+  },
+  "address": {
+    "loading": "Mengambil alamat",
+    "notFound": "Alamat tidak ditemukan",
+    "title": "Detail Lokasi",
+    "coordinates": "Koordinat",
+    "address": "Alamat",
+    "timestamp": "Waktu"
+  },
+  "camera": {
+    "starting": "Menyalakan kamera",
+    "notAvailable": "Kamera tidak tersedia di perangkat ini",
+    "switch": "Ganti kamera",
+    "capture": "Ambil Foto",
+    "retake": "Ambil ulang",
+    "download": "Download",
+    "preview": "Pratinjau",
+    "composing": "Menambahkan watermark",
+    "success": "Foto tersimpan",
+    "errorCompose": "Gagal menambahkan watermark. Coba lagi.",
+    "frontCamera": "Depan",
+    "backCamera": "Belakang"
+  },
+  "map": {
+    "title": "Lokasi Saat Ini",
+    "loadingMap": "Memuat peta",
+    "attribution": "Peta oleh OpenStreetMap"
+  },
+  "watermark": {
+    "capturedAt": "Diambil pada",
+    "coordinates": "Koordinat",
+    "address": "Alamat"
+  },
+  "install": {
+    "prompt": "Install aplikasi ke perangkat",
+    "accept": "Install",
+    "dismiss": "Nanti saja"
+  },
+  "language": {
+    "id": "Bahasa Indonesia",
+    "en": "English",
+    "switcherLabel": "Bahasa"
+  },
+  "common": {
+    "retry": "Coba lagi",
+    "close": "Tutup",
+    "cancel": "Batal",
+    "loading": "Memuat",
+    "ok": "OK"
+  }
+}

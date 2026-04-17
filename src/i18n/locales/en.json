@@ -1,0 +1,84 @@
+{
+  "app": {
+    "name": "Geotag Camera",
+    "tagline": "Photos auto-watermarked with location"
+  },
+  "tabs": {
+    "map": "Map",
+    "camera": "Camera"
+  },
+  "permission": {
+    "title": "Permission required",
+    "description": "This app needs access to your Location (GPS) and Camera to work.",
+    "requestLocation": "Request location permission",
+    "requestCamera": "Request camera permission",
+    "requestAll": "Request location and camera permission",
+    "locationDenied": "Location access denied. Enable location permission in your browser settings.",
+    "cameraDenied": "Camera access denied. Enable camera permission in your browser settings.",
+    "httpsRequired": "This feature requires an HTTPS connection. Open the app via https:// or localhost.",
+    "locationGranted": "Location permission granted",
+    "cameraGranted": "Camera permission granted"
+  },
+  "geo": {
+    "loading": "Finding your location",
+    "accuracyMeters": "Accuracy {{meters}} meters",
+    "accuracyExcellent": "GPS locked",
+    "accuracyGood": "Accuracy fair",
+    "accuracyPoor": "GPS searching for signal",
+    "warming": "Stabilizing GPS ({{samples}} samples received)",
+    "lastUpdated": "Updated {{time}}",
+    "refresh": "Refresh location",
+    "unavailable": "Location unavailable",
+    "timeout": "Location request timed out",
+    "waitForBetterAccuracy": "Wait for accuracy to improve before capturing for best results"
+  },
+  "address": {
+    "loading": "Fetching address",
+    "notFound": "Address not found",
+    "title": "Location Details",
+    "coordinates": "Coordinates",
+    "address": "Address",
+    "timestamp": "Time"
+  },
+  "camera": {
+    "starting": "Starting camera",
+    "notAvailable": "Camera is not available on this device",
+    "switch": "Switch camera",
+    "capture": "Capture",
+    "retake": "Retake",
+    "download": "Download",
+    "preview": "Preview",
+    "composing": "Adding watermark",
+    "success": "Photo saved",
+    "errorCompose": "Failed to add watermark. Please try again.",
+    "frontCamera": "Front",
+    "backCamera": "Back"
+  },
+  "map": {
+    "title": "Current Location",
+    "loadingMap": "Loading map",
+    "attribution": "Map by OpenStreetMap"
+  },
+  "watermark": {
+    "capturedAt": "Captured at",
+    "coordinates": "Coordinates",
+    "address": "Address"
+  },
+  "install": {
+    "prompt": "Install app to your device",
+    "accept": "Install",
+    "dismiss": "Later"
+  },
+  "language": {
+    "id": "Bahasa Indonesia",
+    "en": "English",
+    "switcherLabel": "Language"
+  },
+  "common": {
+    "retry": "Retry",
+    "close": "Close",
+    "cancel": "Cancel",
+    "loading": "Loading",
+    "ok": "OK"
+  }
+}
