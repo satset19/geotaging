@@ -276,8 +276,8 @@ function PreviewMode({
   t,
 }: PreviewModeProps) {
   return (
-    <div className="relative flex flex-1 flex-col">
-      <div className="flex-1 overflow-hidden bg-black p-2 sm:p-4">
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1 overflow-hidden bg-black p-2 sm:p-4">
         {captured ? (
           <div className="mx-auto flex h-full max-w-4xl items-center justify-center">
             <WatermarkCanvas blob={captured} alt={t('camera.preview')} />
@@ -285,7 +285,7 @@ function PreviewMode({
         ) : null}
       </div>
 
-      <div className="flex items-center justify-center gap-3 bg-gradient-to-t from-black/95 to-black/70 px-4 py-4 safe-bottom sm:px-8 sm:py-6">
+      <div className="relative z-50 flex shrink-0 items-center justify-center gap-3 bg-gradient-to-t from-black/95 to-black/70 px-4 py-4 sm:px-8 sm:py-6">
         <Button
           type="button"
           variant="outline"

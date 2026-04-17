@@ -1,0 +1,78 @@
+================================================================================
+GeoDjengs - Nama Baru, Pengalaman Lebih Baik
+================================================================================
+
+RINGKASAN
+---------
+Aplikasi Geotag Kamera kini resmi berganti nama menjadi GeoDjengs. Rebranding
+ini menandai peningkatan tampilan, peta, dan penyempurnaan watermark foto.
+Semua data dan alur kerja Anda tetap sama.
+
+YANG BARU
+---------
+- Identitas baru: nama, logo, dan favicon GeoDjengs menggantikan branding lama.
+- Tampilan lebih segar: refresh desain pada header, tab bar, tombol kamera,
+  kartu alamat, dan halaman peta.
+- Peta OpenStreetMap: mini-map watermark kini memakai OpenStreetMap, ringan
+  dan tanpa kunci API.
+- Watermark lebih ringkas: panel info pada foto menyusut dari 1/4 menjadi 1/5
+  tinggi foto, sehingga subjek foto lebih dominan.
+- Alur izin lebih jelas: halaman permission kamera dan lokasi ditata ulang
+  agar langkahnya lebih mudah diikuti.
+
+YANG TETAP SAMA
+---------------
+- Semua fungsi inti: capture foto, geotagging otomatis, watermark alamat,
+  koordinat, waktu, dan mini-map.
+- Dukungan dwi-bahasa (Indonesia dan English).
+- Instalasi PWA dari browser, dengan dukungan offline untuk foto yang sudah
+  di-capture.
+
+TINDAKAN YANG DISARANKAN
+------------------------
+1. Jika sudah memasang versi sebelumnya sebagai PWA, tutup lalu buka ulang
+   tab untuk memuat aset terbaru.
+2. Pasang ulang ikon home screen (opsional) agar logo baru GeoDjengs muncul
+   di perangkat.
+3. Cek hasil capture: panel watermark kini lebih ramping; beri masukan ke
+   tim jika Anda ingin kembali ke ukuran lama.
+
+
+================================================================================
+GeoDjengs - New Name, Better Experience
+================================================================================
+
+SUMMARY
+-------
+The Geotag Camera app is now officially GeoDjengs. This rebrand ships a
+visual refresh, map improvements, and a slimmer photo watermark. Nothing
+about your data or workflow changes.
+
+WHAT'S NEW
+----------
+- New identity: GeoDjengs name, logo, and favicon replace the old branding.
+- Fresh UI: redesigned header, tab bar, capture button, address card, and
+  map page.
+- OpenStreetMap mini-map: watermark map switches to OSM, lighter and
+  key-free.
+- Slimmer watermark: info panel reduced from 1/4 to 1/5 of the photo height,
+  keeping your subject more prominent.
+- Clearer permissions flow: camera and location permission screens rewritten
+  for faster onboarding.
+
+WHAT STAYS THE SAME
+-------------------
+- All core features: capture, auto geotagging, watermark with address,
+  coordinates, timestamp, and mini-map.
+- Bilingual support (Indonesian and English).
+- PWA install from the browser with offline support for already-captured
+  photos.
+
+SUGGESTED ACTIONS
+-----------------
+1. If you installed the old version as a PWA, close and reopen the tab to
+   pick up the new assets.
+2. Reinstall the home-screen shortcut (optional) to see the new GeoDjengs
+   icon.
+3. Review recent captures: the watermark panel is slimmer; let the team
+   know if you prefer the previous size.
