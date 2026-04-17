@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "Geotag Camera",
-    "tagline": "Photos auto-watermarked with location"
+    "name": "GeoDjengs",
+    "tagline": "Precision geotag camera"
   },
   "tabs": {
     "map": "Map",

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Download, RotateCcw, X } from 'lucide-react';
+import { Download, RotateCcw, Check, AlertTriangle, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { CameraPreview } from '@/components/camera/CameraPreview';
@@ -16,15 +16,14 @@ import { formatCoordinate, formatFileStamp, formatTimestamp } from '@/lib/format
 import { classifyAccuracy } from '@/types/geo';
 
 /**
- * Halaman kamera. Ada dua fase:
- *   1) LIVE: preview kamera + tombol capture + overlay minimap.
- *   2) PREVIEW: foto dengan watermark + tombol Download/Retake.
+ * Fase:
+ *  1) LIVE: preview kamera + overlay glassy info lokasi + tombol capture.
+ *  2) PREVIEW: hasil foto dengan watermark + tombol Retake/Download.
  */
 export function CameraPage() {
   const { t } = useTranslation();
   const { activeTab, position, address, language } = useAppContext();
 
-  // Stream hanya aktif saat tab kamera + belum di-capture.
   const [mode, setMode] = useState<'live' | 'preview'>('live');
   const [captured, setCaptured] = useState<Blob | null>(null);
   const [composing, setComposing] = useState(false);
@@ -42,7 +41,6 @@ export function CameraPage() {
     takeSnapshot,
   } = useCamera({ active: isStreamActive });
 
-  // Reset fase ke live setiap kali user kembali ke tab camera dari tab lain.
   useEffect(() => {
     if (activeTab !== 'camera') return;
     setMode('live');
@@ -80,7 +78,7 @@ export function CameraPage() {
   const handleDownload = useCallback(() => {
     if (!captured || !position) return;
     const stamp = formatFileStamp(position.timestamp);
-    const filename = `geotag-${stamp}.jpg`;
+    const filename = `geodjengs-${stamp}.jpg`;
     downloadBlob(captured, filename);
     setSavedFilename(filename);
   }, [captured, position]);
@@ -92,123 +90,234 @@ export function CameraPage() {
     setMode('live');
   }, []);
 
+  const accuracyQuality = position ? classifyAccuracy(position.accuracy) : null;
+
   return (
-    <div className="relative flex flex-1 flex-col bg-black">
+    <div className="relative flex flex-1 flex-col bg-black overflow-hidden">
       {mode === 'live' ? (
-        <>
-          <CameraPreview
-            ref={videoRef}
-            isStarting={isStarting}
-            error={cameraError}
-            facingMode={facingMode}
-          />
-
-          {/* Overlay atas: info lokasi compact */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3 safe-top">
-            <div className="pointer-events-auto max-w-[60%] rounded-md bg-black/60 p-2 text-xs text-white backdrop-blur">
-              <p className="font-semibold">{t('address.title')}</p>
-              <p className="mt-0.5 line-clamp-2 text-white/90">
-                {address?.formatted ?? t('address.loading')}
-              </p>
-              {position ? (
-                <p className="mt-1 font-mono text-[11px] text-white/80">
-                  {formatCoordinate(position.latitude, position.longitude)}
-                </p>
-              ) : null}
-              {position ? (
-                <p className="text-[11px] text-white/70">
-                  {formatTimestamp(position.timestamp, language)}
-                </p>
-              ) : null}
-              {position ? (
-                <div className="mt-1.5">
-                  <AccuracyBadge accuracyMeters={position.accuracy} compact />
-                </div>
-              ) : null}
-              {position && classifyAccuracy(position.accuracy) === 'poor' ? (
-                <p className="mt-1 text-[11px] leading-snug text-amber-300">
-                  {t('geo.waitForBetterAccuracy')}
-                </p>
-              ) : null}
-            </div>
-
-            {/* Mini map overlay kanan atas */}
-            <div className="pointer-events-auto">
-              <MiniMap />
-            </div>
-          </div>
-
-          {/* Overlay bawah: controls */}
-          <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 px-6 pb-6 pt-4 safe-bottom">
-            <div className="min-w-[120px]">
-              <DevicePicker
-                facing={facingMode}
-                onSwitch={switchCamera}
-                disabled={isStarting || composing}
-              />
-            </div>
-            <CaptureButton
-              onClick={() => void handleCapture()}
-              disabled={!position || Boolean(cameraError)}
-              busy={composing}
-            />
-            <div className="min-w-[120px] text-right text-xs text-white/80">
-              {composing ? t('camera.composing') : null}
-              {composeError ? (
-                <span className="text-destructive">{composeError}</span>
-              ) : null}
-            </div>
-          </div>
-        </>
+        <LiveMode
+          videoRef={videoRef}
+          isStarting={isStarting}
+          cameraError={cameraError}
+          facingMode={facingMode}
+          switchCamera={switchCamera}
+          onCapture={() => void handleCapture()}
+          composing={composing}
+          composeError={composeError}
+          position={position}
+          address={address?.formatted ?? null}
+          language={language}
+          t={t}
+          accuracyQuality={accuracyQuality}
+        />
       ) : (
-        <div className="relative flex flex-1 flex-col">
-          <div className="flex-1 overflow-hidden">
-            {captured ? (
-              <WatermarkCanvas blob={captured} alt={t('camera.preview')} />
-            ) : null}
+        <PreviewMode
+          captured={captured}
+          savedFilename={savedFilename}
+          onRetake={handleRetake}
+          onDownload={handleDownload}
+          clearSaved={() => setSavedFilename(null)}
+          t={t}
+        />
+      )}
+    </div>
+  );
+}
+
+// ---------- Live mode ----------
+
+interface LiveModeProps {
+  videoRef: React.RefObject<HTMLVideoElement>;
+  isStarting: boolean;
+  cameraError: string | null;
+  facingMode: 'environment' | 'user';
+  switchCamera: () => void;
+  onCapture: () => void;
+  composing: boolean;
+  composeError: string | null;
+  position: ReturnType<typeof useAppContext>['position'];
+  address: string | null;
+  language: 'id' | 'en';
+  t: ReturnType<typeof useTranslation>['t'];
+  accuracyQuality: ReturnType<typeof classifyAccuracy> | null;
+}
+
+function LiveMode({
+  videoRef,
+  isStarting,
+  cameraError,
+  facingMode,
+  switchCamera,
+  onCapture,
+  composing,
+  composeError,
+  position,
+  address,
+  language,
+  t,
+  accuracyQuality,
+}: LiveModeProps) {
+  return (
+    <>
+      <CameraPreview
+        ref={videoRef}
+        isStarting={isStarting}
+        error={cameraError}
+        facingMode={facingMode}
+      />
+
+      {/* Overlay top: info lokasi + mini map, safe area aware */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3 safe-top sm:p-4">
+        <LocationHud
+          address={address}
+          position={position}
+          language={language}
+          t={t}
+          accuracyQuality={accuracyQuality}
+        />
+        <div className="pointer-events-auto">
+          <MiniMap />
+        </div>
+      </div>
+
+      {/* Overlay bottom: controls */}
+      <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 px-6 pb-6 pt-5 safe-bottom sm:px-10 sm:pb-8">
+        <DevicePicker
+          facing={facingMode}
+          onSwitch={switchCamera}
+          disabled={isStarting || composing}
+        />
+        <div className="flex flex-col items-center gap-1.5">
+          <CaptureButton
+            onClick={onCapture}
+            disabled={!position || Boolean(cameraError)}
+            busy={composing}
+          />
+          {composing ? (
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-white/90">
+              {t('camera.composing')}
+            </span>
+          ) : composeError ? (
+            <span className="text-[11px] font-semibold text-red-300">
+              {composeError}
+            </span>
+          ) : null}
+        </div>
+        <div className="w-12" aria-hidden />
+      </div>
+    </>
+  );
+}
+
+function LocationHud({
+  address,
+  position,
+  language,
+  t,
+  accuracyQuality,
+}: {
+  address: string | null;
+  position: ReturnType<typeof useAppContext>['position'];
+  language: 'id' | 'en';
+  t: ReturnType<typeof useTranslation>['t'];
+  accuracyQuality: ReturnType<typeof classifyAccuracy> | null;
+}) {
+  return (
+    <div className="pointer-events-auto max-w-[62%] space-y-1.5 rounded-2xl glass-dark px-3 py-2.5 text-white shadow-lg">
+      <div className="flex items-center gap-1.5">
+        <MapPin className="h-3 w-3 text-cyan-300" aria-hidden />
+        <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">
+          {t('address.title')}
+        </span>
+      </div>
+      <p className="line-clamp-2 text-[13px] font-medium leading-snug text-white">
+        {address ?? t('address.loading')}
+      </p>
+      {position ? (
+        <p className="font-mono text-[11px] text-white/70">
+          {formatCoordinate(position.latitude, position.longitude)}
+        </p>
+      ) : null}
+      {position ? (
+        <p className="text-[11px] text-white/60">
+          {formatTimestamp(position.timestamp, language)}
+        </p>
+      ) : null}
+      {position ? (
+        <AccuracyBadge accuracyMeters={position.accuracy} compact />
+      ) : null}
+      {accuracyQuality === 'poor' ? (
+        <div className="flex items-start gap-1 rounded-md bg-amber-500/20 px-1.5 py-1 text-[11px] leading-tight text-amber-100">
+          <AlertTriangle className="mt-px h-3 w-3 shrink-0" aria-hidden />
+          <span>{t('geo.waitForBetterAccuracy')}</span>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// ---------- Preview mode ----------
+
+interface PreviewModeProps {
+  captured: Blob | null;
+  savedFilename: string | null;
+  onRetake: () => void;
+  onDownload: () => void;
+  clearSaved: () => void;
+  t: ReturnType<typeof useTranslation>['t'];
+}
+
+function PreviewMode({
+  captured,
+  savedFilename,
+  onRetake,
+  onDownload,
+  clearSaved: _clearSaved,
+  t,
+}: PreviewModeProps) {
+  return (
+    <div className="relative flex flex-1 flex-col">
+      <div className="flex-1 overflow-hidden bg-black p-2 sm:p-4">
+        {captured ? (
+          <div className="mx-auto flex h-full max-w-4xl items-center justify-center">
+            <WatermarkCanvas blob={captured} alt={t('camera.preview')} />
           </div>
+        ) : null}
+      </div>
 
-          <div className="flex items-center justify-between gap-3 px-4 py-4 safe-bottom">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleRetake}
-              className="bg-white/15 text-white backdrop-blur hover:bg-white/25"
-            >
-              <RotateCcw className="mr-1 h-4 w-4" aria-hidden />
-              {t('camera.retake')}
-            </Button>
+      <div className="flex items-center justify-center gap-3 bg-gradient-to-t from-black/95 to-black/70 px-4 py-4 safe-bottom sm:px-8 sm:py-6">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onRetake}
+          className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+        >
+          <RotateCcw className="h-4 w-4" aria-hidden />
+          {t('camera.retake')}
+        </Button>
 
-            <Button
-              type="button"
-              onClick={handleDownload}
-              className="flex-1 max-w-[240px]"
-            >
-              <Download className="mr-2 h-4 w-4" aria-hidden />
-              {t('camera.download')}
-            </Button>
+        <Button
+          type="button"
+          size="lg"
+          onClick={onDownload}
+          className="bg-brand shadow-brand flex-1 max-w-[260px]"
+        >
+          <Download className="h-4 w-4" aria-hidden />
+          {t('camera.download')}
+        </Button>
+      </div>
 
-            {savedFilename ? (
-              <div
-                className="flex items-center gap-1 text-xs text-green-400"
-                role="status"
-              >
-                <span className="truncate max-w-[140px]">{savedFilename}</span>
-                <button
-                  type="button"
-                  aria-label={t('common.close')}
-                  onClick={() => setSavedFilename(null)}
-                  className="text-white/70 hover:text-white"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ) : (
-              <span className="min-w-[60px]" />
-            )}
+      {savedFilename ? (
+        <div className="pointer-events-none absolute inset-x-0 top-4 z-10 flex justify-center safe-top">
+          <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-emerald-500/90 px-3 py-1.5 text-xs font-semibold text-white shadow-lg backdrop-blur">
+            <Check className="h-3.5 w-3.5" aria-hidden />
+            <span>{t('camera.success')}</span>
+            <span className="max-w-[200px] truncate font-normal opacity-90">
+              {savedFilename}
+            </span>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

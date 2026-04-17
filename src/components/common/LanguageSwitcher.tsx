@@ -1,7 +1,6 @@
-import { Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/context/AppContext';
+import { cn } from '@/lib/utils';
 import type { SupportedLocale } from '@/i18n';
 
 const OPTIONS: { value: SupportedLocale; label: string }[] = [
@@ -17,25 +16,25 @@ export function LanguageSwitcher() {
     <div
       role="group"
       aria-label={t('language.switcherLabel')}
-      className="inline-flex items-center gap-1 rounded-md border bg-background p-0.5"
+      className="inline-flex items-center rounded-full border border-border bg-background/80 p-0.5 shadow-sm backdrop-blur"
     >
-      <span className="px-2 text-muted-foreground" aria-hidden>
-        <Languages className="h-4 w-4" />
-      </span>
       {OPTIONS.map((opt) => {
         const active = language === opt.value;
         return (
-          <Button
+          <button
             key={opt.value}
             type="button"
-            variant={active ? 'default' : 'ghost'}
-            size="sm"
             aria-pressed={active}
             onClick={() => setLanguage(opt.value)}
-            className="h-7 px-2"
+            className={cn(
+              'relative inline-flex h-7 min-w-[32px] items-center justify-center rounded-full px-2 text-[11px] font-bold tracking-wide transition-all touch-manipulation',
+              active
+                ? 'bg-brand text-white shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
           >
             {opt.label}
-          </Button>
+          </button>
         );
       })}
     </div>

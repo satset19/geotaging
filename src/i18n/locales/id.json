@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "Geotag Kamera",
-    "tagline": "Foto otomatis dengan watermark lokasi"
+    "name": "GeoDjengs",
+    "tagline": "Kamera geotagging presisi"
   },
   "tabs": {
     "map": "Peta",

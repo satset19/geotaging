@@ -6,7 +6,7 @@ import { InstallPrompt } from '@/components/common/InstallPrompt';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { useAppContext } from '@/context/AppContext';
 
-// Lazy load page besar agar bundle awal kecil.
+// Lazy load halaman besar agar bundle awal ringan.
 const MapPage = lazy(() =>
   import('@/pages/MapPage').then((m) => ({ default: m.MapPage }))
 );
@@ -18,14 +18,14 @@ export function AppShell() {
   const { activeTab } = useAppContext();
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex h-dvh flex-col bg-background">
       <Header />
-      <main className="flex flex-1 flex-col overflow-hidden">
+      <main className="relative flex flex-1 flex-col overflow-hidden">
         <PermissionGate>
           <Suspense
             fallback={
               <div className="flex flex-1 items-center justify-center">
-                <LoadingSpinner label="..." />
+                <LoadingSpinner />
               </div>
             }
           >
@@ -34,7 +34,7 @@ export function AppShell() {
                 id="panel-map"
                 role="tabpanel"
                 aria-labelledby="tab-map"
-                className="flex flex-1 flex-col"
+                className="flex flex-1 flex-col overflow-hidden"
               >
                 <MapPage />
               </section>
@@ -43,7 +43,7 @@ export function AppShell() {
                 id="panel-camera"
                 role="tabpanel"
                 aria-labelledby="tab-camera"
-                className="flex flex-1 flex-col"
+                className="flex flex-1 flex-col overflow-hidden"
               >
                 <CameraPage />
               </section>

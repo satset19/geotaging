@@ -1,6 +1,5 @@
 import { SwitchCamera } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
 import type { CameraFacing } from '@/hooks/useCamera';
 
 interface Props {
@@ -14,16 +13,14 @@ export function DevicePicker({ facing, onSwitch, disabled }: Props) {
   const label =
     facing === 'environment' ? t('camera.backCamera') : t('camera.frontCamera');
   return (
-    <Button
+    <button
       type="button"
-      variant="secondary"
-      size="sm"
       onClick={onSwitch}
       disabled={disabled}
-      className="bg-white/15 text-white backdrop-blur hover:bg-white/25"
+      aria-label={`${t('camera.switch')} (${label})`}
+      className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur-md transition-colors hover:bg-black/60 active:scale-95 disabled:opacity-40 touch-manipulation"
     >
-      <SwitchCamera className="mr-1 h-4 w-4" aria-hidden />
-      {t('camera.switch')} ({label})
-    </Button>
+      <SwitchCamera className="h-5 w-5" aria-hidden />
+    </button>
   );
 }

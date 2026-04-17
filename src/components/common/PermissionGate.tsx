@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { MapPin, Camera, ShieldAlert } from 'lucide-react';
+import { MapPin, Camera, ShieldAlert, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppContext } from '@/context/AppContext';
+import { cn } from '@/lib/utils';
 
 type PermState = 'unknown' | 'prompt' | 'granted' | 'denied' | 'unsupported';
 
-// Query Permissions API untuk kamera dan geolokasi (tidak semua browser support untuk camera).
 async function queryPermission(
   name: 'geolocation' | 'camera'
 ): Promise<PermState> {
@@ -29,9 +29,8 @@ async function queryPermission(
 }
 
 /**
- * Gate yang memastikan aplikasi jalan di secure context dan user sudah diminta izin
- * geolocation & camera. Bila belum granted, menampilkan CTA untuk meminta izin.
- * Tetap menampilkan children agar user bisa melihat UI dasar; CTA muncul sebagai overlay card.
+ * Gate yang memastikan secure context + permission lokasi + kamera sudah granted.
+ * Bila belum, menampilkan card onboarding dengan status per permission dan tombol request.
  */
 export function PermissionGate({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
@@ -49,7 +48,6 @@ export function PermissionGate({ children }: { children: ReactNode }) {
     void queryPermission('camera').then(setCameraPerm);
   }, []);
 
-  // Sinkronkan status geo dengan hasil actual hook geolocation.
   useEffect(() => {
     if (position) setGeoPerm('granted');
     if (positionError?.code === 'PERMISSION_DENIED') setGeoPerm('denied');
@@ -61,7 +59,7 @@ export function PermissionGate({ children }: { children: ReactNode }) {
         video: { facingMode: { ideal: 'environment' } },
         audio: false,
       });
-      stream.getTracks().forEach((t) => t.stop());
+      stream.getTracks().forEach((tr) => tr.stop());
       setCameraPerm('granted');
     } catch {
       setCameraPerm('denied');
@@ -84,12 +82,14 @@ export function PermissionGate({ children }: { children: ReactNode }) {
 
   if (!isSecure) {
     return (
-      <div className="flex min-h-full items-center justify-center p-6">
-        <Card className="max-w-md">
-          <CardHeader>
-            <ShieldAlert className="h-6 w-6 text-destructive" />
-            <CardTitle>{t('permission.title')}</CardTitle>
-            <CardDescription>{t('permission.httpsRequired')}</CardDescription>
+      <div className="flex flex-1 items-center justify-center p-6">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+              <ShieldAlert className="h-6 w-6 text-destructive" />
+            </div>
+            <CardTitle className="mt-3">{t('permission.title')}</CardTitle>
+            <CardDescription className="px-2">{t('permission.httpsRequired')}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -103,41 +103,44 @@ export function PermissionGate({ children }: { children: ReactNode }) {
   if (!showGate) return <>{children}</>;
 
   return (
-    <div className="flex min-h-full items-center justify-center p-6">
+    <div className="flex flex-1 items-center justify-center overflow-y-auto p-4 sm:p-6">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldAlert className="h-5 w-5" aria-hidden />
-            {t('permission.title')}
-          </CardTitle>
-          <CardDescription>{t('permission.description')}</CardDescription>
+        <CardHeader className="text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <ShieldAlert className="h-6 w-6 text-primary" />
+          </div>
+          <CardTitle className="mt-3">{t('permission.title')}</CardTitle>
+          <CardDescription className="px-2">
+            {t('permission.description')}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center justify-between rounded-md border p-3">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" aria-hidden />
-              <span className="text-sm">{t('permission.requestLocation')}</span>
-            </div>
-            <StatusBadge state={geoPerm} t={t} />
-          </div>
-          <div className="flex items-center justify-between rounded-md border p-3">
-            <div className="flex items-center gap-2">
-              <Camera className="h-4 w-4" aria-hidden />
-              <span className="text-sm">{t('permission.requestCamera')}</span>
-            </div>
-            <StatusBadge state={cameraPerm} t={t} />
-          </div>
+          <PermRow
+            icon={<MapPin className="h-5 w-5" />}
+            label={t('permission.requestLocation')}
+            state={geoPerm}
+          />
+          <PermRow
+            icon={<Camera className="h-5 w-5" />}
+            label={t('permission.requestCamera')}
+            state={cameraPerm}
+          />
 
           {geoPerm === 'denied' ? (
-            <p className="text-xs text-destructive">{t('permission.locationDenied')}</p>
+            <div className="rounded-lg bg-destructive/10 p-3 text-xs text-destructive">
+              {t('permission.locationDenied')}
+            </div>
           ) : null}
           {cameraPerm === 'denied' ? (
-            <p className="text-xs text-destructive">{t('permission.cameraDenied')}</p>
+            <div className="rounded-lg bg-destructive/10 p-3 text-xs text-destructive">
+              {t('permission.cameraDenied')}
+            </div>
           ) : null}
 
           <Button
             type="button"
-            className="w-full"
+            size="lg"
+            className="w-full bg-brand shadow-brand"
             onClick={() => void requestAll()}
             disabled={geoPerm === 'denied' && cameraPerm === 'denied'}
           >
@@ -149,33 +152,59 @@ export function PermissionGate({ children }: { children: ReactNode }) {
   );
 }
 
-function StatusBadge({
+function PermRow({
+  icon,
+  label,
   state,
-  t,
 }: {
+  icon: ReactNode;
+  label: string;
   state: PermState;
-  t: (key: string) => string;
 }) {
-  const color =
+  const granted = state === 'granted';
+  const denied = state === 'denied';
+  return (
+    <div
+      className={cn(
+        'flex items-center justify-between rounded-xl border p-3 transition-colors',
+        granted && 'border-emerald-500/30 bg-emerald-500/5',
+        denied && 'border-destructive/30 bg-destructive/5'
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <span
+          className={cn(
+            'flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground',
+            granted && 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
+            denied && 'bg-destructive/10 text-destructive'
+          )}
+        >
+          {icon}
+        </span>
+        <span className="text-sm font-medium">{label}</span>
+      </div>
+      <StatusBadge state={state} />
+    </div>
+  );
+}
+
+function StatusBadge({ state }: { state: PermState }) {
+  const styles =
     state === 'granted'
-      ? 'bg-green-500/15 text-green-700 dark:text-green-400'
+      ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
       : state === 'denied'
         ? 'bg-destructive/15 text-destructive'
         : 'bg-muted text-muted-foreground';
-  const label =
-    state === 'granted'
-      ? t('common.ok')
-      : state === 'denied'
-        ? 'Denied'
-        : state === 'prompt'
-          ? '...'
-          : '-';
   return (
     <span
-      className={`rounded-full px-2 py-0.5 text-xs font-medium ${color}`}
+      className={cn(
+        'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold',
+        styles
+      )}
       aria-live="polite"
     >
-      {label}
+      {state === 'granted' ? <Check className="h-3 w-3" aria-hidden /> : null}
+      {state === 'granted' ? 'OK' : state === 'denied' ? 'Denied' : '...'}
     </span>
   );
 }

@@ -14,17 +14,18 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'Geotag Kamera',
-        short_name: 'Geotag',
+        name: 'GeoDjengs - Geotag Camera',
+        short_name: 'GeoDjengs',
         description:
-          'Kamera dengan watermark lokasi otomatis (alamat, koordinat, peta) via Google Maps',
+          'Kamera dengan watermark lokasi otomatis (alamat, koordinat, peta) via OpenStreetMap',
         theme_color: '#0f172a',
-        background_color: '#0f172a',
+        background_color: '#020617',
         display: 'standalone',
         orientation: 'portrait',
         lang: 'id',
         scope: '/',
         start_url: '/',
+        categories: ['photo', 'navigation', 'utilities'],
         icons: [
           {
             src: 'pwa-192x192.png',

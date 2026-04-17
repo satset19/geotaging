@@ -10,16 +10,13 @@ import {
   OSM_TILE_TEMPLATE,
 } from '@/lib/openStreetMap';
 import { bluePinIcon } from '@/lib/leafletIcon';
+import { cn } from '@/lib/utils';
 
 interface MapViewProps {
-  heightClassName?: string;
+  className?: string;
 }
 
-/**
- * Peta Leaflet + OpenStreetMap dengan marker posisi user.
- * Zoom awal 16 saat posisi sudah tersedia, fallback center ke Monas bila belum.
- */
-export function MapView({ heightClassName = 'h-[380px]' }: MapViewProps) {
+export function MapView({ className }: MapViewProps) {
   const { t } = useTranslation();
   const { position } = useAppContext();
 
@@ -27,21 +24,26 @@ export function MapView({ heightClassName = 'h-[380px]' }: MapViewProps) {
     () =>
       position
         ? [position.latitude, position.longitude]
-        : [-6.175392, 106.827153], // fallback: Monas, Jakarta.
+        : [-6.175392, 106.827153],
     [position]
   );
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border ${heightClassName}`}
+      className={cn(
+        'relative overflow-hidden rounded-2xl border border-border/60 surface-card',
+        // Tinggi adaptif: mobile aspect ratio 4:3, tablet tinggi fix, desktop lebih tinggi.
+        'h-[46vh] min-h-[280px] sm:h-[54vh] md:h-[70vh] md:min-h-[420px]',
+        className
+      )}
     >
       <MapContainer
         center={center}
         zoom={position ? 16 : 12}
         scrollWheelZoom
         className="h-full w-full"
-        // Matikan tombol attribution default di pojok kanan bawah: kita kendalikan via TileLayer.
         attributionControl
+        zoomControl
       >
         <TileLayer
           attribution={OSM_ATTRIBUTION}
@@ -57,17 +59,16 @@ export function MapView({ heightClassName = 'h-[380px]' }: MapViewProps) {
         <RecenterOnPosition lat={position?.latitude} lng={position?.longitude} />
       </MapContainer>
       {!position ? (
-        <div className="pointer-events-none absolute inset-0 z-[400] flex items-center justify-center bg-background/60 backdrop-blur-sm">
-          <LoadingSpinner label={t('geo.loading')} />
+        <div className="pointer-events-none absolute inset-0 z-[400] flex items-center justify-center bg-background/70 backdrop-blur-sm">
+          <div className="rounded-full border border-border bg-card px-4 py-2 shadow-sm">
+            <LoadingSpinner label={t('geo.loading')} />
+          </div>
         </div>
       ) : null}
     </div>
   );
 }
 
-/**
- * Re-center peta setiap kali posisi berubah. panTo memberi animasi halus.
- */
 function RecenterOnPosition({ lat, lng }: { lat?: number; lng?: number }) {
   const map = useMap();
   useEffect(() => {

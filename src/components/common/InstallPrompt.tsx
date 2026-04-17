@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Download, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { BrandLogo } from '@/components/common/BrandLogo';
 
-// Tipe resmi beforeinstallprompt.
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
   readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
@@ -11,8 +11,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 /**
- * Banner "Install app" PWA yang muncul saat browser menembak beforeinstallprompt.
- * Jika user dismiss, simpan preferensi di localStorage agar tidak muncul lagi 7 hari.
+ * Banner install PWA. Muncul di atas TabBar, hilang 7 hari bila user dismiss.
  */
 export function InstallPrompt() {
   const { t } = useTranslation();
@@ -21,7 +20,6 @@ export function InstallPrompt() {
 
   useEffect(() => {
     const handler = (e: Event) => {
-      // Cegah auto-prompt dari browser Chrome.
       e.preventDefault();
       const until = Number(localStorage.getItem('installPromptDismissedUntil') ?? '0');
       if (Date.now() < until) return;
@@ -35,7 +33,6 @@ export function InstallPrompt() {
   if (!visible || !deferred) return null;
 
   const dismiss = () => {
-    // Tidak muncul lagi selama 7 hari.
     const weekMs = 7 * 24 * 60 * 60 * 1000;
     localStorage.setItem(
       'installPromptDismissedUntil',
@@ -55,16 +52,27 @@ export function InstallPrompt() {
   };
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-40 flex justify-center px-4 safe-bottom md:bottom-6">
-      <div className="pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-lg border bg-card p-3 shadow-lg">
-        <Download className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-        <p className="flex-1 text-sm">{t('install.prompt')}</p>
-        <Button size="sm" onClick={() => void accept()}>
+    <div className="pointer-events-none fixed inset-x-0 bottom-[84px] z-50 flex justify-center px-4 safe-bottom">
+      <div className="pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl border border-border/60 bg-card/95 p-3 shadow-brand backdrop-blur-xl">
+        <BrandLogo size={36} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold leading-tight">{t('app.name')}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {t('install.prompt')}
+          </p>
+        </div>
+        <Button size="sm" className="bg-brand" onClick={() => void accept()}>
+          <Download className="h-3.5 w-3.5" aria-hidden />
           {t('install.accept')}
         </Button>
-        <Button size="icon" variant="ghost" aria-label={t('install.dismiss')} onClick={dismiss}>
+        <button
+          type="button"
+          onClick={dismiss}
+          aria-label={t('install.dismiss')}
+          className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
           <X className="h-4 w-4" />
-        </Button>
+        </button>
       </div>
     </div>
   );

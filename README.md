@@ -1,4 +1,4 @@
-# Geotag Kamera (Geolocation Camera PWA)
+# GeoDjengs (Geotag Camera PWA)
 
 Aplikasi web PWA yang mengombinasikan kamera perangkat dengan peta
 OpenStreetMap dan GPS untuk menghasilkan foto ber-watermark lokasi otomatis.

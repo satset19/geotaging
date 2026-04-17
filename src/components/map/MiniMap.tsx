@@ -17,7 +17,7 @@ export function MiniMap() {
   if (!position) return null;
 
   return (
-    <div className="relative h-36 w-36 overflow-hidden rounded-lg border-2 border-white/80 shadow-lg">
+    <div className="relative h-28 w-28 overflow-hidden rounded-xl border-2 border-white/80 shadow-lg sm:h-36 sm:w-36">
       <MapContainer
         center={[position.latitude, position.longitude]}
         zoom={16}
